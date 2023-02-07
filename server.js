@@ -1,14 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const chatRouter = require("./routes/chatRouter.js");
+// const chatRouter = require("./routes/chatRouter.js");
 
 const app = express();
-app.use(express.json()); // Make sure it comes back as json
+app.use(express.json());
 
+//Connect app to mongoDB
 //TODO - Replace you Connection String here
 mongoose
   .connect(
-    "mongodb+srv://marie:vianca@cluster0.cmkzudn.mongodb.net/ChatLabTestOne?retryWrites=true&w=majority",
+    "mongodb+srv://marie:vianca@cluster0.cmkzudn.mongodb.net/chat_db?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
