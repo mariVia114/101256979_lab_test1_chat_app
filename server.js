@@ -5,16 +5,21 @@ const userRouter = require("./routes/userRoutes.js");
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const http = require('http').createServer(app);
+const http = require('http')
+const server = http.createServer(app);
+const path = require('path')
+const socketio = require('socket.io')
+const formatMessage = require('./utils/message')
 
 
 //Server side socket
-const io = require('socket.io')(http);
+const io = socketio(server);
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(express.static(path.join(__dirname,'pages')));
 //Connect app to mongoDB
 //TODO - Replace you Connection String here
 mongoose
@@ -34,39 +39,21 @@ mongoose
 
 
 io.on('connection', (socket) =>{
-  socket.emit("Welcome", "Welcome to the chat!")
-  socket.broadcast.emit('message', 'A user has joined the chat')
+  console.log('New WS connection')
+  socket.emit("message", formatMessage('ChatCord', "Welcome to the chat!"))
+  socket.broadcast.emit('message', formatMessage('ChatCord','A user has joined the chat'))
   socket.on('disconnect',() =>{
-    const message = {
-      msg: 'User disconnected'
-    }
-    socket.broadcast.emit("message", message);
+    io.emit('message', formatMessage('ChatCord','A user has left the chat'));
   })
 
-  socket.on('message', (data, username) =>{
-    const info = {
-      from_user: username,
-      message: data
-    };
-    socket.broadcast.emit('newInfo', info);
+  socket.on('chatMessage', (msg) =>{
+    io.emit('message' ,formatMessage(`USER`, msg));
   })
-
-  socket.on("userTyping", (data) => {
-    if (data.typing == true) io.emit("show", data);
-    else io.emit("show", data);
-  });
-
-  socket.on("room_message", (data) => {
-    const alert = {
-      from_user: data.from_user,
-      message: data.message,
-    };
-    socket.broadcast.to(data.room).emit("newAlert", alert);
-  });
+  
 })  
 
 app.use(chatRouter);
 app.use(userRouter);
-http.listen(8000, () => {
+server.listen(8000, () => {
   console.log(`Server is running at http://localhost:8000`);
 });
