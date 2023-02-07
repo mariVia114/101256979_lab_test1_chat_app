@@ -54,6 +54,10 @@ app.post('/login', async(req,res)=>{
     }
 });
 
+app.get("/chat", function(req, res) {
+   res.sendFile(path.join(__dirname, "../pages/chat.html"));
+});
+
 app.get("/logout", async (req, res) => {
   res.clearCookie("username");
   res.sendFile(path.join(__dirname, "../pages/login.html"));

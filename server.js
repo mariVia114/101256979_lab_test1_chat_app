@@ -33,13 +33,14 @@ mongoose
   });
 
 
-io.on('connect', (socket) =>{
+io.on('connection', (socket) =>{
   socket.emit("Welcome", "Welcome to the chat!")
+  socket.broadcast.emit('message', 'A user has joined the chat')
   socket.on('disconnect',() =>{
     const message = {
       msg: 'User disconnected'
     }
-    socket.broadcast.emit("farewellMsg", farewellMsg);
+    socket.broadcast.emit("message", message);
   })
 
   socket.on('message', (data, username) =>{
